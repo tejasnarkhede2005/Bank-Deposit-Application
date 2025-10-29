@@ -8,18 +8,19 @@ st.set_page_config(page_title="Bank Deposit Prediction", page_icon="💰", layou
 
 # -------------------- LOAD MODEL --------------------
 import pickle
-import importlib
+import tensorflow as tf  # ensure keras classes are registered
 
 try:
     with open("bank deposit.pkl", "rb") as f:
         model = pickle.load(f)
 except ModuleNotFoundError as e:
     st.error(f"⚠️ Missing library or class used in model: {e}")
-    st.info("Add the required package to requirements.txt or retrain the model using only standard sklearn objects.")
+    st.info("Please ensure TensorFlow and Keras are installed and the model is compatible.")
     st.stop()
 except Exception as e:
     st.error(f"Error loading model: {e}")
     st.stop()
+
 
 
 
