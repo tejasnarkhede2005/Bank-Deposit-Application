@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import base64
 
+
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Bank Deposit Prediction", page_icon="💰", layout="wide")
 
@@ -19,6 +20,15 @@ except ModuleNotFoundError as e:
 except Exception as e:
     st.error(f"Error loading model: {e}")
     st.stop()
+
+
+
+from joblib import dump
+dump(model, "bank_deposit.joblib")
+
+
+from joblib import load
+model = load("bank_deposit.joblib")
 
 
 # -------------------- CUSTOM CSS --------------------
