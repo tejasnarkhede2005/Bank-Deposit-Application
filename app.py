@@ -27,9 +27,6 @@ from joblib import dump
 dump(model, "bank_deposit.joblib")
 
 
-from joblib import load
-model = load("bank_deposit.joblib")
-
 
 # -------------------- CUSTOM CSS --------------------
 st.markdown("""
