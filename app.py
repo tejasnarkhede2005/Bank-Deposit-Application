@@ -1,44 +1,19 @@
 import streamlit as st
+import numpy as np
 import pickle
-import base64
-
+import tensorflow as tf
 
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Bank Deposit Prediction", page_icon="💰", layout="wide")
 
-# -------------------- LOAD MODEL --------------------
-import pickle
-import tensorflow as tf  # ensure keras classes are registered
-
-try:
-    with open("bank deposit.pkl", "rb") as f:
-        model = pickle.load(f)
-except ModuleNotFoundError as e:
-    st.error(f"⚠️ Missing library or class used in model: {e}")
-    st.info("Please ensure TensorFlow and Keras are installed and the model is compatible.")
-    st.stop()
-except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.stop()
-
-
-
-
-from joblib import dump
-dump(model, "bank_deposit.joblib")
-
-
-
 # -------------------- CUSTOM CSS --------------------
 st.markdown("""
     <style>
-    /* Background and text styling */
     body {
-        background-color: #f5f7fa;
-        font-family: 'Segoe UI', sans-serif;
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", sans-serif;
         color: #333333;
     }
-    /* Navbar */
     .navbar {
         overflow: hidden;
         background-color: #0d6efd;
@@ -64,7 +39,7 @@ st.markdown("""
         color: white;
     }
     .main {
-        padding: 10px 25px;
+        padding: 20px 25px;
         background-color: white;
         border-radius: 12px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -81,39 +56,66 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# -------------------- HOME SECTION --------------------
+# -------------------- LOAD MODEL --------------------
 st.header("💰 Bank Deposit Prediction App")
-st.write("This app predicts whether a customer will subscribe to a term deposit based on input features.")
 
-# Example Input Fields (customize as per your dataset)
-age = st.number_input("Customer Age", min_value=18, max_value=100, value=30)
-balance = st.number_input("Account Balance (€)", min_value=-10000, max_value=100000, value=500)
-duration = st.number_input("Last Contact Duration (seconds)", min_value=0, max_value=5000, value=300)
-campaign = st.number_input("Number of Contacts During Campaign", min_value=1, max_value=50, value=2)
+try:
+    with open("bank deposit.pkl", "rb") as f:
+        model = pickle.load(f)
+except ModuleNotFoundError as e:
+    st.error(f"⚠️ Missing library or class used in model: {e}")
+    st.info("Make sure TensorFlow/Keras is installed or retrain using standard sklearn objects.")
+    st.stop()
+except Exception as e:
+    st.error(f"❌ Error loading model: {e}")
+    st.stop()
 
-# Prediction button
-if st.button("🔮 Predict"):
-    # Prepare data (example — adjust shape/columns to match your model)
-    X = [[age, balance, duration, campaign]]
-    pred = model.predict(X)
-    result = "✅ Will Subscribe" if pred[0] == 1 else "❌ Will Not Subscribe"
-    
-    st.success(f"**Prediction:** {result}")
+# -------------------- MAIN INPUT SECTION --------------------
+st.write("Predict whether a bank customer will subscribe to a term deposit.")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    age = st.number_input("Customer Age", min_value=18, max_value=100, value=35)
+    balance = st.number_input("Account Balance (€)", min_value=-10000, max_value=100000, value=1500)
+with col2:
+    duration = st.number_input("Last Contact Duration (seconds)", min_value=0, max_value=5000, value=300)
+    campaign = st.number_input("Number of Contacts During Campaign", min_value=1, max_value=50, value=3)
+
+predict_btn = st.button("🔮 Predict")
+
+# -------------------- PREDICTION --------------------
+if predict_btn:
+    try:
+        X = np.array([[age, balance, duration, campaign]], dtype=float)
+        pred = model.predict(X)
+
+        # Handle binary vs multi-class
+        if pred.shape[-1] == 1:
+            prob = float(pred[0][0])
+            result = "✅ Will Subscribe" if prob > 0.5 else "❌ Will Not Subscribe"
+            st.success(f"**Prediction:** {result}")
+            st.info(f"Confidence: {prob:.2f}")
+        else:
+            class_idx = np.argmax(pred, axis=1)[0]
+            st.success(f"**Predicted Class:** {class_idx}")
+
+    except Exception as e:
+        st.error(f"⚠️ Error while predicting: {e}")
 
 # -------------------- ABOUT SECTION --------------------
 st.markdown("---")
 st.subheader("ℹ️ About")
 st.write("""
-This project uses a trained machine learning model to predict whether a bank customer will subscribe
-to a term deposit.  
-Developed using **Python**, **Scikit-learn**, and **Streamlit** for interactive deployment.
+This interactive app uses a trained **Keras (TensorFlow)** model to predict whether a bank customer will subscribe
+to a term deposit. Built with **Python**, **TensorFlow**, and **Streamlit**.
 """)
 
 # -------------------- CONTACT SECTION --------------------
 st.markdown("---")
 st.subheader("📧 Contact")
 st.write("""
-For any queries or collaborations:  
+For any queries or collaborations:
 - **Developer:** Your Name  
 - **Email:** your.email@example.com  
 - **GitHub:** [github.com/yourusername](https://github.com/yourusername)
