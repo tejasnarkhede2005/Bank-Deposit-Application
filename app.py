@@ -6,8 +6,20 @@ import base64
 st.set_page_config(page_title="Bank Deposit Prediction", page_icon="💰", layout="wide")
 
 # -------------------- LOAD MODEL --------------------
-with open("bank deposit.pkl", "rb") as f:
-    model = pickle.load(f)
+import pickle
+import importlib
+
+try:
+    with open("bank deposit.pkl", "rb") as f:
+        model = pickle.load(f)
+except ModuleNotFoundError as e:
+    st.error(f"⚠️ Missing library or class used in model: {e}")
+    st.info("Add the required package to requirements.txt or retrain the model using only standard sklearn objects.")
+    st.stop()
+except Exception as e:
+    st.error(f"Error loading model: {e}")
+    st.stop()
+
 
 # -------------------- CUSTOM CSS --------------------
 st.markdown("""
