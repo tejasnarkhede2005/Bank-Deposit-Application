@@ -31,9 +31,7 @@ st.markdown("""
 st.header("💰 Bank Deposit Prediction App")
 
 # ---------- Load Model ----------
-try:
-    with open("bank deposit.pkl", "rb") as f:
-    model = pickle.load(f)
+
 from tensorflow import keras
 
 try:
