@@ -33,7 +33,15 @@ st.header("💰 Bank Deposit Prediction App")
 # ---------- Load Model ----------
 try:
     with open("bank deposit.pkl", "rb") as f:
-        model = pickle.load(f)
+    model = pickle.load(f)
+from tensorflow import keras
+
+try:
+    model = keras.models.load_model("bank_deposit_model.keras")
+except Exception as e:
+    st.error(f"❌ Error loading Keras model: {e}")
+    st.stop()
+
 except ModuleNotFoundError as e:
     st.error(f"⚠️ Missing library or class used in model: {e}")
     st.stop()
